@@ -1,0 +1,14 @@
+<html>
+<body>
+<div id="pepe"></div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io.connect('http://192.168.15.117');
+  socket.on('news', function (data) {
+    console.log(data);
+	document.getElementById("pepe").innerHTML="Oli";
+    socket.emit('my other event', { my: 'data' });
+  });
+</script>
+</body>
+</html>
