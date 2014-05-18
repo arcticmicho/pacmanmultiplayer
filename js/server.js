@@ -3,7 +3,7 @@ app.http().io()
 app.listen(80);
 
 var maxPlayers = 3;
-var players = new Array();
+var players = [new Player(0),new Player(0),new Player(0)];
 var index = 0;
 var fullOfPlayers = -1;
 
@@ -37,8 +37,6 @@ app.io.sockets.on('connection', function (socket) {
   socket.on('requestID',function (data) {
 	console.log('server - request ID received');
     if(index < maxPlayers){
-		var newPlayer = new Player(index);
-		players[index] = newPlayer;
 		socket.emit('requestedID',index);
 		console.log('Request ID required');
 		index++;
@@ -47,29 +45,43 @@ app.io.sockets.on('connection', function (socket) {
 	}
   });
   
-  socket.on('moveClientToServer', function(inputJSON) {
-	//TODO des-serializar JSON y actualizar jugadores luego mandar broadcast
-
-	var parsedJSON = JSON.parse(inputJSON);
+  socket.on('sendNewPlayer',function (newPlayer) {
+	players[newPlayer.id] = newPlayer;
+	console.log('server - receiving new Player' + JSON.stringify(newPlayer));
+	console.log('server - updated list of players' + JSON.stringify(players));
+	for(var i=0;i<players.length;i++)
+	{
+		socket.broadcast.emit('newPlayerOnGame',players[i]);
+	}
+  });
+  
+  socket.on('moveClientToServer', function(jsonAsString) {
+	var parsedJSON = JSON.parse(jsonAsString);
 	var id = parsedJSON.id;
-	var posX = parsedJSON.posx;
-	var posY = parsedJSON.posy;
 	
-	console.log('server - players array ' + players);
-	//Almacenando players
-	players[id].xPos = posX;
-	players[id].yPos = posY;
+	//actualizando posicion del player
+	players[id].xPos = parsedJSON.posx;
+	players[id].yPos = parsedJSON.posy;
+	
+	var playersAsJSON = {"players":
+        players
+	};
 	
 	//Reenviando position JSON del player a todos los demas
-	console.log('server - init Broadcasting ' + JSON.stringify(players));
-	socket.broadcast.emit('moveServerToClient',JSON.stringify(players));
+	//console.log('server - init Broadcasting ' + JSON.stringify(playersAsJSON));
+	socket.broadcast.emit('moveServerToClient',playersAsJSON);
 	
   });
   
 });
 
 function Player(playerId){
- this.id = playerId;
- this.xPos = 0;
- this.yPos = 0;
+	this.id = playerId;
+	this.xPos = 0;
+	this.yPos = 0;
+	this.color="#000000";
+	this.actionUp=false;
+	this.actionDown=false;
+	this.actionLeft=false;
+	this.actionRigth=false;
 }
