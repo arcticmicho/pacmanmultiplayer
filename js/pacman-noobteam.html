@@ -23,7 +23,7 @@
 	</script>
     <script>
 	var gameObject;		
-	var socket = io.connect('http://172.23.107.48');
+	var socket = io.connect('http://192.168.1.151');
 
 	window.onload = function(){
 	gameObject = new GameObject();
@@ -37,7 +37,7 @@
 		this.stageBlockMargin=5;
 		this.maxPlayer=3;
 		this.stageArray= new Array(this.stageDimension);
-		this.playersArray=new Array(this.maxPlayer);
+		this.playersArray=[new Player(0,0,0),new Player(0,0,0),new Player(0,0,0)];
 
 		this.actionLeft=false;
 		this.actionRigth=false;
@@ -49,11 +49,12 @@
 	
     GameObject.prototype.createPlayer=function(id){
         this.player= new Player(0,0,id);
-        this.player.color=this.player.getRandomColor();
+        this.player.color=this.player.getColor(id);
         console.log("Player created");
     }
 	
 	GameObject.prototype.pushPlayerIntoArray=function(player){
+		console.log('Pushing Player ' + player.id + ' in position ' + player.id);
 		this.playersArray[player.id] = player;		
     }
     
@@ -65,16 +66,16 @@
     
     GameObject.prototype.drawPlayersArray = function (){
             for(var i=0;i<this.playersArray.length;i++){
-                  $("#stage-container").append('<div id="'+this.playersArray[i].id+'" style="position: absolute; top:'+this.stageBlockWidth*this.playersArray[i].posy+'px; left:'+this.stageBlockWidth*this.playersArray[i].posx+'px; width:'+this.stageBlockWidth+'px; height:'+this.stageBlockWidth+'px; background-color: '+this.playersArray[i].color+';"></div>');
+                  $("#stage-container").append('<div id="'+this.playersArray[i].id+'" style="position: absolute; top:'+this.stageBlockWidth*this.playersArray[i].yPos+'px; left:'+this.stageBlockWidth*this.playersArray[i].xPos+'px; width:'+this.stageBlockWidth+'px; height:'+this.stageBlockWidth+'px; background-color: '+this.playersArray[i].color+';"></div>');
             }
         }
     
         GameObject.prototype.drawPlayers = function (){
-                  $("#stage-container").append('<div id="'+this.player.id+'" style="position: absolute; top:'+this.stageBlockWidth*this.player.posy+'px; left:'+this.stageBlockWidth*this.player.posx+'px; width:'+this.stageBlockWidth+'px; height:'+this.stageBlockWidth+'px; background-color: '+this.player.color+';"></div>');
+                  $("#stage-container").append('<div id="'+this.player.id+'" style="position: absolute; top:'+this.stageBlockWidth*this.player.yPos+'px; left:'+this.stageBlockWidth*this.player.xPos+'px; width:'+this.stageBlockWidth+'px; height:'+this.stageBlockWidth+'px; background-color: '+this.player.color+';"></div>');
         }
 		
 		GameObject.prototype.drawOtherPlayers = function (obj){
-                  $("#stage-container").append('<div id="'+obj.id+'" style="position: absolute; top:'+this.stageBlockWidth*obj.posy+'px; left:'+this.stageBlockWidth*obj.posx+'px; width:'+this.stageBlockWidth+'px; height:'+this.stageBlockWidth+'px; background-color: '+obj.color+';"></div>');
+                  $("#stage-container").append('<div id="'+obj.id+'" style="position: absolute; top:'+this.stageBlockWidth*obj.yPos+'px; left:'+this.stageBlockWidth*obj.xPos+'px; width:'+this.stageBlockWidth+'px; height:'+this.stageBlockWidth+'px; background-color: '+obj.color+';"></div>');
         }
     
     GameObject.prototype.drawStage= function (){
@@ -116,8 +117,8 @@
          var posx;
          var posy;
          for(var i=0;i<this.playersArray.length;i++){    
-             posx=this.playersArray[i].posx;
-             posy=this.playersArray[i].posy;
+             posx=this.playersArray[i].xPos;
+             posy=this.playersArray[i].yPos;
         
                 if(posx<this.stageDimension-1 ){
                     if(this.action == "arrowright" && this.checkForBlockStageArray(i,1,0)){
@@ -152,28 +153,30 @@
                 }
 
                 if(this.playersArray[i].actionRigth){
-                    this.playersArray[i].posx++;}
+                    this.playersArray[i].xPos++;}
 
                 if(this.playersArray[i].actionLeft){          
-                    this.playersArray[i].posx--;}
+                    this.playersArray[i].xPos--;}
 
                 if(this.playersArray[i].actionUp){
-                    this.playersArray[i].posy--;}
+                    this.playersArray[i].yPos--;}
 
                 if(this.playersArray[i].actionDown){          
-                    this.playersArray[i].posy++;}
+                    this.playersArray[i].yPos++;}
              
-                this.sendPLayerData(this.playersArray[i]);
+                
 
-                $("#"+this.playersArray[i].id).css('left',this.playersArray[i].posx*this.stageBlockWidth);
-                $("#"+this.playersArray[i].id).css('top',this.playersArray[i].posy*this.stageBlockWidth);
+                $("#"+this.playersArray[i].id).css('left',this.playersArray[i].xPos*this.stageBlockWidth);
+                $("#"+this.playersArray[i].id).css('top',this.playersArray[i].yPos*this.stageBlockWidth);
+				
+				this.sendPlayerData(this.playersArray[i]);
          }
     }
     
     GameObject.prototype.animatePlayer=function (playerToMove){
          this.player=playerToMove;
-         var posx = this.player.posx;
-         var posy = this.player.posy;
+         var posx = this.player.xPos;
+         var posy = this.player.yPos;
 	
 		if(posx < this.stageDimension-1 ){
 			if(this.action == "arrowright" && this.checkForBlockStage(1,0,this.player)){
@@ -212,25 +215,25 @@
 		}
 
 		if(this.player.actionRigth){
-			this.player.posx++;
+			this.player.xPos++;
 		}
 
 		if(this.player.actionLeft){          
-			this.player.posx--;
+			this.player.xPos--;
 		}
 
 		if(this.player.actionUp){
-			this.player.posy--;
+			this.player.yPos--;
 		}
 
 		if(this.player.actionDown){          
-			this.player.posy++;
+			this.player.yPos++;
 		}
 	 
 		this.sendPlayerData(this.player);
 
-		$("#"+this.player.id).css('left',this.player.posx*this.stageBlockWidth);
-		$("#"+this.player.id).css('top',this.player.posy*this.stageBlockWidth);
+		$("#"+this.player.id).css('left',this.player.xPos*this.stageBlockWidth);
+		$("#"+this.player.id).css('top',this.player.yPos*this.stageBlockWidth);
 		
 		//this.animatePlayersArray(this.playersArray);
          
@@ -238,16 +241,16 @@
     
     GameObject.prototype.sendPlayerData=function (obj){
 
-        var playerJson={"id":obj.id,"posx":obj.posx,"posy":obj.posy};
+        var playerJson={"id":obj.id,"posx":obj.xPos,"posy":obj.yPos};
         socket.emit('moveClientToServer', JSON.stringify(playerJson));
     }
     
     GameObject.prototype.checkForBlockStageArray=function (i,x,y){
-        return this.stageArray[this.playersArray[i].posy+y][this.playersArray[i].posx+x].state;
+        return this.stageArray[this.playersArray[i].yPos+y][this.playersArray[i].xPos+x].state;
     }
     
-    GameObject.prototype.checkForBlockStage=function (x,y,obj){
-        return this.stageArray[obj.posy+y][obj.posx+x].state;
+    GameObject.prototype.checkForBlockStage=function (x,y,player){
+        return this.stageArray[player.yPos+y][player.xPos+x].state;
     }
     
     GameObject.prototype.actionsFalse=function(){
@@ -263,10 +266,10 @@
 
 
     function Player(posx,posy,id){
-        this.posx=posx;
-        this.posy=posy;
+        this.xPos=posx;
+        this.yPos=posy;
         this.id=id;
-        this.color;
+        this.color="#000000";
         this.actionUp=false;
         this.actionDown=false;
         this.actionLeft=false;
@@ -280,17 +283,11 @@
         this.actionRigth=false;
     }
     
-    Player.prototype.getRandomColor=function(){
-            
-        var letters = '0123456789ABCDEF'.split('');
-        var color = '#';
-        for (var i = 0; i < 6; i++ ) {
-            color += letters[Math.floor(Math.random() * 16)];
-        }
+    Player.prototype.getColor=function(id){
+		var colors = ["#FF0000", "#FFFF00", "#00FF00", "#FA58D0"];
+        var color = colors[id];
         return color;  
     }
-    
-    
 
 }
 
@@ -309,21 +306,24 @@
 			gameObject.createPlayer(id);
 			gameObject.createStage();
 			gameObject.pushPlayerIntoArray(gameObject.player);
-			setInterval(function(){gameObject.animatePlayer(gameObject.player);},70);		
-	  });
+			setInterval(function(){gameObject.animatePlayer(gameObject.player);},70);
+			socket.emit('sendNewPlayer', gameObject.player);
+	    });
+		
+		socket.on('newPlayerOnGame', function (newPlayer) {
+			console.log("adding new Player : " + JSON.stringify(newPlayer));
+			gameObject.playersArray[newPlayer.id] = newPlayer;
+			gameObject.drawOtherPlayers(newPlayer);
+	    });
 	  
-		socket.on('moveServerToClient', function(jsonInput){
-			console.log('Client - moveServerToClient: jsonInput' + jsonInput);
-			var parsedJSON = new Array();
-			parsedJSON = JSON.parse(jsonInput);
-			for(var i=0;i<this.parsedJSON.length;i++)
-			{
-				var id = parsedJSON.id;
-				var posX = parsedJSON.posx;
-				var posY = parsedJSON.posy;
+		socket.on('moveServerToClient', function(playersAsJSON){
 			
-				gameObject.playerArray[id].posx=posX;
-				gameObject.playerArray[id].posx=posY;
+			var parsedJSON = playersAsJSON.players;
+			for(var i=0;i<parsedJSON.length;i++)
+			{
+				var id = parsedJSON[i].id;			
+				gameObject.playersArray[id].xPos = parsedJSON[i].xPos;
+				gameObject.playersArray[id].yPos = parsedJSON[i].yPos;
 			}
 			gameObject.animatePlayersArray(parsedJSON);
 			
