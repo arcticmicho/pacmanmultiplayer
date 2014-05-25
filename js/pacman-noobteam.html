@@ -27,11 +27,9 @@
 
 	window.onload = function(){
 	gameObject = new GameObject();
-	//console.log('calling to requestID');
 	socket.emit('requestID');
     
 	function GameObject(){	 
-		//console.log("Pacman-Multiplayer");
 		this.stageDimension=15;
 		this.stageBlockWidth=40;
 		this.stageBlockMargin=5;
@@ -50,17 +48,14 @@
     GameObject.prototype.createPlayer=function(id){
         this.player= new Player(0,0,id);
         this.player.color=this.player.getColor(id);
-        //console.log("Player created");
     }
 	
 	GameObject.prototype.pushPlayerIntoArray=function(player){
-		//console.log('Pushing Player ' + player.id + ' in position ' + player.id);
 		this.playersArray[player.id] = player;		
     }
     
     GameObject.prototype.setActions = function (e){
 		key=checkKey(e); 
-		////console.log("Key:"+key)
 		this.action=key;               
 	}
     
@@ -68,7 +63,6 @@
             var zIndex=1;
             for(var i=0;i<this.playersArray.length;i++){
                   $("#stage-container").append('<div id="'+this.playersArray[i].id+'" style="position: absolute; z-index:'+zIndex+'; top:'+this.stageBlockWidth*this.playersArray[i].yPos+'px; left:'+this.stageBlockWidth*this.playersArray[i].xPos+'px; width:'+this.stageBlockWidth+'px; height:'+this.stageBlockWidth+'px; background-color: '+this.playersArray[i].color+';"></div>');
-                //console.log("Draw new Player "+this.playersArray[i].id);
                 $("body").append('<div>Puntage player'+i+':<label id="t'+this.playersArray[i].id+'">'+0+'</label></div>');
             }
     }
@@ -87,8 +81,6 @@
 				}
             }
         }
-        //console.log("DrawingStage");
-        //console.log(this.player);
         if(this.player!=null){       
             this.drawPlayers();
         }
@@ -108,7 +100,6 @@
                     this.stageArray[i][ii].id="b"+i+"-"+ii;
                 }
             }
-            //console.log("Sate Created");
             this.drawStage();
     }
     
@@ -185,9 +176,6 @@
 		}
 	 
 		this.sendPlayerData(this.player);
-
-		//$("#"+this.player.id).css('left',this.player.xPos*this.stageBlockWidth);
-		//$("#"+this.player.id).css('top',this.player.yPos*this.stageBlockWidth);
 		
 		this.animatePlayersArray(this.playersArray);
          
@@ -259,7 +247,6 @@
 		});
 		
 		socket.on('requestedID', function (id) {
-			//console.log("requestedID : " + id);
 			gameObject.createPlayer(id);
 			gameObject.createStage();
 			gameObject.pushPlayerIntoArray(gameObject.player);
@@ -269,9 +256,7 @@
 	    });
 		
 		socket.on('newPlayerOnGame', function (newPlayerArray) {
-            //console.log("Received New Players");
             var parsedJSON = newPlayerArray.players;
-			//console.log("adding new Player : " + JSON.stringify(parsedJSON));
             gameObject.playersArray = parsedJSON;
             
 	    });
@@ -285,7 +270,6 @@
 				gameObject.playersArray[id].xPos = parsedJSON[i].xPos;
 				gameObject.playersArray[id].yPos = parsedJSON[i].yPos;
 			}
-			//gameObject.animatePlayersArray(parsedJSON);
 			
 		});
 	  
