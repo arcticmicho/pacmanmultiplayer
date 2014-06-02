@@ -3,7 +3,7 @@ app.http().io()
 app.listen(80);
 
 var maxPlayers = 3;
-var players = [new Player(0),new Player(0),new Player(0)];
+var players = [new Player(0,0,0),new Player(30,0,1),new Player(0,30,2)];
 var index = 0;
 var fullOfPlayers = -1;
 
@@ -49,10 +49,11 @@ app.io.sockets.on('connection', function (socket) {
 	players[newPlayer.id] = newPlayer;
 	console.log('server - receiving new Player' + JSON.stringify(newPlayer));
 	console.log('server - updated list of players' + JSON.stringify(players));
-	for(var i=0;i<players.length;i++)
-	{
-		socket.broadcast.emit('newPlayerOnGame',players[i]);
-	}
+    var playersAsJSON = {"players":
+        players
+	};
+   // socket.broadcast.emit('newPlayerOnGame',playersAsJSON);
+      app.io.sockets.emit('newPlayerOnGame',playersAsJSON);
   });
   
   socket.on('moveClientToServer', function(jsonAsString) {
@@ -69,16 +70,17 @@ app.io.sockets.on('connection', function (socket) {
 	
 	//Reenviando position JSON del player a todos los demas
 	//console.log('server - init Broadcasting ' + JSON.stringify(playersAsJSON));
-	socket.broadcast.emit('moveServerToClient',playersAsJSON);
+	//socket.broadcast.emit('moveServerToClient',playersAsJSON);
+      app.io.sockets.emit('moveServerToClient',playersAsJSON);
 	
   });
   
 });
 
-function Player(playerId){
+function Player(x,y,playerId){
 	this.id = playerId;
-	this.xPos = 0;
-	this.yPos = 0;
+	this.xPos = x;
+	this.yPos = y;
 	this.color="#000000";
 	this.actionUp=false;
 	this.actionDown=false;
