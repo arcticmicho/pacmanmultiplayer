@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+    <script>
+		function checkKey(e){
+		var key=0;
+			key=String.fromCharCode(e.keyCode);
+			if(key=="&"){key="arrowup"}
+			if(key=="%"){key="arrowleft"}
+			if(key=="("){key="arrowdown"}
+			if(key=="'"){key="arrowright"}
+			if(key==" "){key="space"}
+			if(key==""){key="ctrl"}
+			if(key==""){key="alt"}
+			if(key==""){key="capLocks"}
+			if(key==""){key="shift"}
+			return(key);
+	}
+	</script>
+    <script>	
+	var socket;
+
+	window.onload = function(){
+		 socket = io.connect('http://192.168.12.82');
+}
+	function juega(){
+		socket.emit('requestID');
+	}
+	
+	
+
+	</script>
+    </head>
+	<body>
+		<h1>Welcome Page</h1>
+		<button id="enter" onclick="juega();">Enter Game</button>
+	</body>
+</html>
