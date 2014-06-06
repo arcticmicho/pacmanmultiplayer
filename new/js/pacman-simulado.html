@@ -4,7 +4,8 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" />
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <script src="pacman.js"></script>
+    <script src="StageObject.js"></script>
+    <script src="DrawGame.js"></script>    
     <script>
 		function checkKey(e){
 		var key=0;
@@ -21,8 +22,108 @@
 			return(key);
 	}
 	</script>
+    <script> 
+              
+              
+              var fps=90;
+              
+              //SERVER SIDE
+              var player1= new Player(0,0,0);
+              var player2= new Player(1,0,1);
+              var player3= new Player(2,0,2);
+                        
+              var playerArray= [];
+                        
+              playerArray[player1.id]=(player1);
+              playerArray[player2.id]=(player2);
+              playerArray[player3.id]=(player3);
+
+              var serverStage=new StageObject();
+              var stageObject;
+              var serverSideClientData;
+              
+              function sendDataToClient(){
+                        var objArray = new Array(serverStage,playerArray);
+                        stageObject= JSON.stringify(objArray);       
+              }
+              
+              function animatePlayersInServer(){
+                   var player;
+                   for(var playerNum=0;playerNum<playerArray.length;playerNum++){
+                              player=playerArray[playerNum];
+                              serverStage.animatePlayer(player);
+                    }
+                    sendDataToClient();
+              }
+              
+              function receiveDataFromClient(a){
+                    console.log(a);
+                    if(a!=null){    
+                              serverSideClientData=JSON.parse(a);
+                              playerArray[serverSideClientData.id].action=serverSideClientData.action;
+                              playerArray[serverSideClientData.id]=serverStage.animatePlayer(playerArray[serverSideClientData.id]);   
+                    }
+              }
+              
+              //CLIENT
+              var stage;
+              var drawGame;
+              var actionMemory="";
+              var playerArrayClient;
+              var clientSideData = {id:"",action:""}
+              
+              function receiveDataFromServer(){
+                    stage= JSON.parse(stageObject);
+                    if(stage[1]!=null){
+                              playerArrayClient=stage[1];
+                    }    
+              }
+
+              $(window).keydown(function(e){
+                        receiveDataFromServer();
+                        var key=checkKey(e);
+                        if(actionMemory!=key){
+                                  sendDataToServer(1,key);
+                        }
+                        actionMemory=key;
+              });
+              
+              function sendDataToServer(id,key){
+                        var clientDataParsedToServer;
+                        clientSideData.id=id;
+                        clientSideData.action=key;
+                        clientDataParsedToServer=JSON.stringify(clientSideData);
+                        receiveDataFromClient(clientDataParsedToServer);
+              }
+              
+              function drawPlayers(){
+                        receiveDataFromServer();
+                        drawGame.drawStageArray(stage[0].stageArray);
+                        drawGame.drawPlayersFromArray(playerArray);
+              }
+              
+              $(window).ready(function(){
+              
+                        //SERVER
+                        serverStage.createStage();
+              
+                        sendDataToClient();
+                        
+                        setInterval(animatePlayersInServer,fps);
+                        
+                        
+                        //CLIENT SIDE    
+                        receiveDataFromServer();
+                        setInterval(drawPlayers,fps);
+                        drawGame = new DrawGame('myCanvas');
+                        drawGame.drawStageArray(stage[0].stageArray);
+                        drawGame.drawPlayersFromArray(stage[1]);
+                                  
+              });
+              
+    </script>
     </head>
     <body>
-	<h1>Pacman Multiplayer</h1>
+              <canvas id="myCanvas"></canvas>
     </body>
 </html>
