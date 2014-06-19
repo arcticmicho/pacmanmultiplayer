@@ -4,6 +4,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" />
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
     <script src="StageObject.js"></script>
     <script src="DrawGame.js"></script>    
     <script>
@@ -65,7 +66,7 @@
                     }
               }
               
-              //CLIENT
+              //CLIENT SIDE
               var stage;
               var drawGame;
               var actionMemory="";
@@ -99,7 +100,7 @@
               function drawPlayers(){
                         receiveDataFromServer();
                         drawGame.drawStageArray(stage[0].stageArray);
-                        drawGame.drawPlayersFromArray(playerArray);
+                        drawGame.drawPlayersFromArray(playerArrayClient);
               }
               
               $(window).ready(function(){
@@ -110,8 +111,7 @@
                         sendDataToClient();
                         
                         setInterval(animatePlayersInServer,fps);
-                        
-                        
+    
                         //CLIENT SIDE    
                         receiveDataFromServer();
                         setInterval(drawPlayers,fps);
@@ -122,6 +122,7 @@
               });
               
     </script>
+
     </head>
     <body>
               <canvas id="myCanvas"></canvas>
