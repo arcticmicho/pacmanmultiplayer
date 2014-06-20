@@ -20,7 +20,6 @@
 			if(key==""){key="shift"}
 			return(key);
 	}
-
               var socket;
               
               var fps=90;    
@@ -32,11 +31,7 @@
               var clientSideData = {id:"",action:""};
 			  
               function receiveDataFromServer(stageObject){
-			        console.log(stageObject[1]);
-                    if(stageObject[1] != null){
-                              playerArrayClient=stageObject[1];
                     }
-                    stage= stageObject[0];
               }
 
               $(window).keydown(function(e){
@@ -56,13 +51,11 @@
               }
               
               function drawPlayers(){
-                        drawGame.drawStageArray(stage.stageArray);
                         drawGame.drawPlayersFromArray(playerArrayClient);
               }
               
               $(window).ready(function(){
 						
-						socket = io.connect('http://192.168.15.71');
 						
                         //CLIENT SIDE
 						socket.emit('requestID');
@@ -73,13 +66,10 @@
 						
 						socket.on('sendDataToClient', function (unparsedJSON) {
 						console.log(unparsedJSON);
-                        receiveDataFromServer(unparsedJSON);
 							console.log("Data from server received");
 							if( drawGame == null){
 								drawGame = new DrawGame('myCanvas');
 							}
-							drawPlayers();
-	     
 						});						
                         //receiveDataFromServer();
                         
