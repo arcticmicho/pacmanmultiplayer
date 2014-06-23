@@ -20,7 +20,8 @@
 			if(key==""){key="shift"}
 			return(key);
 	}
-              var socket;
+              var gameObject;		
+			  var socket = io.connect('http://192.168.119.1');
               
               var fps=90;    
               //CLIENT
@@ -29,9 +30,10 @@
               var actionMemory="";
               var playerArrayClient;
               var clientSideData = {id:"",action:""};
-			  
-              function receiveDataFromServer(stageObject){
-                    }
+
+              function receiveDataFromServer(a){
+                    stage=a[0];
+					playerArrayClient=a[1]
               }
 
               $(window).keydown(function(e){
@@ -50,38 +52,39 @@
                         return (clientDataParsedToServer);
               }
               
-              function drawPlayers(){
-                        drawGame.drawPlayersFromArray(playerArrayClient);
+              function drawGameObjects(){
+				  drawGame.drawObject(stage.stageArray,playerArrayClient);
               }
               
               $(window).ready(function(){
-						
-						
+
+
                         //CLIENT SIDE
 						socket.emit('requestID');
-						
+
 						socket.on('requestedID', function (id) {
 							clientSideData.id=id;
 						});
-						
+
 						socket.on('sendDataToClient', function (unparsedJSON) {
-						console.log(unparsedJSON);
+						//console.log(unparsedJSON);
 							console.log("Data from server received");
 							if( drawGame == null){
 								drawGame = new DrawGame('myCanvas');
 							}
+							receiveDataFromServer(unparsedJSON);
+							drawGameObjects();
 						});						
-                        //receiveDataFromServer();
                         
               });
-			  
-			  
+
+
 			function DrawGame(id){
 					  this.canvas = window.document.getElementById(id);
 					  this.ctx= this.canvas.getContext("2d");
-					  
+						
 					  this.blockDimension=10;
-					  
+
 					  this.setCanvasSize();
 			}
 
@@ -112,6 +115,12 @@
 								player=playerArray[playerNum];
 								this.drawPlayer(player,player.xPos,player.yPos);
 					  }
+			}
+			
+			DrawGame.prototype.drawObject=function(stagea,playera){
+				this.canvas.width=this.canvas.width;
+				this.drawStageArray(stagea);
+				this.drawPlayersFromArray(playera);
 			}
 
 			DrawGame.prototype.setBlockColor=function(a){

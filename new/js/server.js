@@ -11,7 +11,7 @@
 		this.action="";
 		this.player;
     }
-	
+
     StageObject.prototype.createStage = function(){
 			console.log("Stage created");
             for(var i=0;i<this.stageDimension;i++){
@@ -119,7 +119,7 @@ var app = require('express.io')()
 app.http().io()
 app.listen(80);
 
-var maxPlayers = 3;
+var maxPlayers = 50;
 var index = 0;
 var fullOfPlayers = -1;
 
@@ -174,14 +174,12 @@ app.io.sockets.on('connection', function (socket) {
   });
   
   socket.on('receiveDataFromClient',function (unparsedJSON) {
-	
+
 	if(unparsedJSON != null){
 		parsedJSON = JSON.parse(unparsedJSON);
-		playerArray[parsedJSON.id].action = parsedJSON.action;
-          
-        playerArray[parsedJSON.id] = serverStage.animatePlayer(playerArray[parsedJSON.id]);   
+		playerArray[parsedJSON.id].action = parsedJSON.action; 
 	}
-	
+
 	app.io.sockets.emit('sendDataToClient',sendDataToClient());
   });
 });
@@ -223,5 +221,3 @@ function receiveDataFromClient(a){
         playerArray[serverSideClientData.id]=serverStage.animatePlayer(playerArray[serverSideClientData.id]);   
     }
 }
-
-
