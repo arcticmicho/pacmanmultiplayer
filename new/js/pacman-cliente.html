@@ -21,7 +21,7 @@
 			return(key);
 	}
               var gameObject;		
-			  var socket = io.connect('http://192.168.119.1');
+			  var socket = io.connect('http://192.168.15.71');
               
               var fps=90;    
               //CLIENT
@@ -100,7 +100,7 @@
 			}
 
 			DrawGame.prototype.drawBlock = function(obj,colum,row){
-					  this.ctx.fillStyle=this.setBlockColor(obj.point);
+					  this.ctx.fillStyle=this.setBlockColor(obj);
 					  this.ctx.fillRect(this.blockDimension*colum,this.blockDimension*row,this.blockDimension,this.blockDimension);                  
 			}
 
@@ -123,11 +123,15 @@
 				this.drawPlayersFromArray(playera);
 			}
 
-			DrawGame.prototype.setBlockColor=function(a){
-					  if(a){
+			DrawGame.prototype.setBlockColor=function(obj){
+					  if(obj.state){
 								return "#FF00FF";          
 					  }else{
-								return "#0000FF"
+                                if(obj.point){
+								  return "#0000FF";
+                                }else{
+                                  return "#00FF00";  
+                                }
 					  }
 			}
 
