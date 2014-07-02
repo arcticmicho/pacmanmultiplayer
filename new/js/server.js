@@ -1,6 +1,6 @@
 var app = require('express.io')()
-var StageObject= require ('StageObject.js');
-var Player= require ('Player.js');
+var StageObject= require ('./StageObject.js');
+var Player= require ('./Player.js');
 
 app.http().io()
 app.listen(80);
@@ -10,10 +10,6 @@ var index = 0;
 var fullOfPlayers = -1;
 
 var playerArray= [];
-                        
-//playerArray[player1.id]=(player1);
-//playerArray[player2.id]=(player2);
-//playerArray[player3.id]=(player3);
 
 var serverStage= new StageObject();
 serverStage.createStage();
@@ -23,15 +19,15 @@ var noSlot = '/noSlot.html'
 var client = '/pacman-cliente.html'
 var gamePage = '/pacman-cliente.html'
 
-app.get('/', function (req, res) {
-	console.log("Enter");
-  if(index > maxPlayers){
-	res.sendfile(__dirname + noSlot);
-  }else { 
-	res.sendfile(__dirname + gamePage);
+	   app.get('/', function (req, res) {
+			      console.log("Enter");
+			 if(index > maxPlayers){
+			      res.sendfile(__dirname + noSlot);
+			 }else { 
+			      res.sendfile(__dirname + gamePage);
 
-  }
-});
+			 }
+		  });
 
 app.get('/client', function (req, res) {
   res.sendfile(__dirname + client);
@@ -60,12 +56,11 @@ app.io.sockets.on('connection', function (socket) {
   });
   
   socket.on('receiveDataFromClient',function (unparsedJSON) {
-
 	if(unparsedJSON != null){
 		parsedJSON = JSON.parse(unparsedJSON);
 		playerArray[parsedJSON.id].action = parsedJSON.action; 
 	}
-
+	  
 	app.io.sockets.emit('sendDataToClient',sendDataToClient());
   });
 });

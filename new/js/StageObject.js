@@ -1,6 +1,6 @@
 var StageObject =    function (){
         console.log("Game Object Created");
-		this.stageDimension=31;
+		this.stageDimension=41;
 		this.stageArray= new Array(this.stageDimension);
 
 		this.actionLeft=false;

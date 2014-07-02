@@ -21,7 +21,7 @@
 			return(key);
 	}
               var gameObject;		
-			  var socket = io.connect('http://192.168.15.71');
+			  	  var socket = io.connect('http://192.168.15.47');
               
               var fps=90;    
               //CLIENT
@@ -38,22 +38,27 @@
 
               $(window).keydown(function(e){
                         var key=checkKey(e);
-                        if(actionMemory!=key){   
-								  socket.emit('receiveDataFromClient', sendDataToServer(clientSideData.id,key));
+                        setKeyMove(key);
+              });
+		 			
+				 function setKeyMove(key){
+					 	
+					 	if(actionMemory!=key){   
+								   sendDataToServer(clientSideData.id,key);
                         }
                         actionMemory=key;
-              });
+				 }
              
               function sendDataToServer(id,key){
                         var clientDataParsedToServer;
                         clientSideData.id=id;
                         clientSideData.action=key;
                         clientDataParsedToServer=JSON.stringify(clientSideData);
-                        return (clientDataParsedToServer);
+                        socket.emit('receiveDataFromClient', clientDataParsedToServer);
               }
               
               function drawGameObjects(){
-				  drawGame.drawObject(stage.stageArray,playerArrayClient);
+				  				drawGame.drawObject(stage.stageArray,playerArrayClient);
               }
               
               $(window).ready(function(){
@@ -67,7 +72,7 @@
 						});
 
 						socket.on('sendDataToClient', function (unparsedJSON) {
-						//console.log(unparsedJSON);
+						console.log(unparsedJSON);
 							console.log("Data from server received");
 							if( drawGame == null){
 								drawGame = new DrawGame('myCanvas');
@@ -103,6 +108,17 @@
 					  this.ctx.fillStyle=this.setBlockColor(obj);
 					  this.ctx.fillRect(this.blockDimension*colum,this.blockDimension*row,this.blockDimension,this.blockDimension);                  
 			}
+			
+		   DrawGame.prototype.setBlockColor=function(obj){
+				  if(obj.state){
+					  	if(obj.point){
+						  		return "#0000FF";
+						  }
+					  return "#FF00FF";
+				  }else{
+						return "#00FF00";  
+				  }
+			}
 
 			DrawGame.prototype.drawPlayer = function(obj,colum,row){
 					  this.ctx.fillStyle=obj.color;
@@ -123,18 +139,6 @@
 				this.drawPlayersFromArray(playera);
 			}
 
-			DrawGame.prototype.setBlockColor=function(obj){
-					  if(obj.state){
-								return "#FF00FF";          
-					  }else{
-                                if(obj.point){
-								  return "#0000FF";
-                                }else{
-                                  return "#00FF00";  
-                                }
-					  }
-			}
-
 			DrawGame.prototype.setCanvasSize = function(a){
 					  this.canvas.width=window.innerWidth/1.2;
 					  this.canvas.height=window.innerHeight/1.2;
@@ -144,5 +148,10 @@
     </head>
     <body>
               <canvas id="myCanvas"></canvas>
+		 <br>
+		 <button onclick="setKeyMove('arrowup')">UP</button>
+		 <button onclick="setKeyMove('arrowdown')">DOWN</button>
+		 <button onclick="setKeyMove('arrowleft')">LEFT</button>
+		 <button onclick="setKeyMove('arrowright')">RIGHT</button>
     </body>
 </html>
